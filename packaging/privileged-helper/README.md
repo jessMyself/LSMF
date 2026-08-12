@@ -28,14 +28,18 @@ the approved isolated VM. The audit and `kernel_hardening` verification runner
 has isolated-VM evidence from Section 2. The sysctl transaction, version-2
 manifest, backup/recovery store, fixed worker, Qt mutation controls, and
 expanded service sandbox have source, temporary-root, and completed Section 3
-Ubuntu VM evidence. The new Debian release-candidate archive itself has not
-been installed or exercised in a VM.
+Ubuntu VM evidence. The exact Gate 4.5 Debian candidate was installed and
+exercised in its recorded VM row. Publication metadata later changed the
+package archive, so current builder output has not been installed or exercised
+in a VM.
 Mutable Cancel remains disabled in Qt pending correction and live proof of the
 deferred same-connection terminal-ordering defect.
 
 `packaging/debian/build-package.sh` creates a deterministic amd64 Debian-family
-Qt/helper release-candidate package. The exact candidate passed its bounded
-offline Ubuntu 24.04 Section 4 VM row. It installs the unprivileged desktop, launcher,
+Qt/helper release-candidate package. The recorded Gate 4.5 candidate passed its
+bounded offline Ubuntu 24.04 Section 4 VM row; current output needs a
+replacement row because publication metadata changed the archive. It installs
+the unprivileged desktop, launcher,
 pinned hash-verified PySide6 runtime, and helper boundary in one archive. The
 builder removes the earlier synthetic manifest and toggle fixture from the
 final payload. Building a package does not install, register, start, or

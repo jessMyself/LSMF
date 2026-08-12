@@ -32,11 +32,12 @@ documented in [privileged-helper.md](privileged-helper.md). The completed helper
 foundation now includes peer/session binding, fixed Polkit actions, D-Bus and
 systemd artifacts, protected auditing, process isolation, durable recovery, and
 Qt action controls. A source checkout does not install or activate the helper.
-The release-candidate package passed the bounded offline Ubuntu 24.04 Section 4
+The recorded Gate 4.5 package passed the bounded offline Ubuntu 24.04 Section 4
 VM row specified in
 [privileged-helper-vm-verification.md](privileged-helper-vm-verification.md).
-That evidence does not approve workstation installation or another
-distribution.
+Publication metadata subsequently changed the package archive, so a newly built
+archive requires replacement VM verification. The recorded evidence does not
+approve workstation installation or another distribution.
 
 ## Install and run
 
@@ -75,8 +76,9 @@ complete. The program sections are:
    same-connection cancellation limitation deferred and visible.
 3. **Section 3:** completed bounded Qt apply, exact rollback, and durable
    recovery proof.
-4. **Section 4:** the bounded Ubuntu 24.04 package row passed; documentation,
-   privacy, clean-history publication, and CI closure remain release work.
+4. **Section 4:** the recorded Ubuntu 24.04 package row passed; source-release
+   closure is in progress, and the metadata-updated package needs a replacement
+   VM row before binary release.
 
 See [the consolidated Qt roadmap](../project-review/consolidated-qt-roadmap.md) for scope, exclusions, dependencies, acceptance criteria, and verification requirements.
 

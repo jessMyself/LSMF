@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a bounded, testable improvement
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem or security gap would this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Include privilege boundaries, rollback needs, and verification ideas.
+    validations:
+      required: true
+  - type: dropdown
+    id: live_system
+    attributes:
+      label: Does this affect live system state?
+      options: ['Yes', 'No', 'Unsure']
+    validations:
+      required: true

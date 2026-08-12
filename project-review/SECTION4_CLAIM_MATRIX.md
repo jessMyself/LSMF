@@ -16,10 +16,11 @@
 | CIS scanner | Planned | No detailed CIS scanner is implemented. |
 | Filesystem/PAM/auditd/AIDE/malware modules | Planned | Not part of the implemented module inventory. |
 | Helper source checkout | Inactive | Checkout does not install, register, enable, or start the helper. |
-| Debian Qt/helper package | Ubuntu-tested release candidate | One amd64 archive contains Qt, pinned PySide6, and the helper; offline installation, packaged Qt/helper scenarios, and removal passed the bounded Ubuntu 24.04 Gate 4.5 row. |
-| Ubuntu 24.04 | Evidence-bearing target | The release-candidate package passed its isolated offline Gate 4.5 row; this does not establish another distribution. |
+| Recorded Gate 4.5 Debian package | Ubuntu-tested historical candidate | The exact recorded amd64 archive contains Qt, pinned PySide6, and the helper; offline installation, packaged Qt/helper scenarios, and removal passed the bounded Ubuntu 24.04 row. |
+| Current package builder output | Replacement VM row required | Publication metadata and third-party notices changed the archive after Gate 4.5. Source checks and package inspection do not transfer the recorded artifact's VM result. |
+| Ubuntu 24.04 | Evidence-bearing target for recorded artifact | The recorded package passed its isolated offline Gate 4.5 row; a newly built archive requires replacement verification, and no result transfers to another distribution. |
 | Debian, Fedora, Rocky/Alma, Mint, Neon, Kali | Unverified targets | No support claim until an applicable artifact and mandatory image matrix pass. |
-| Production readiness | Not achieved | The Ubuntu package row passed, but public-release closure, broader compatibility, and production validation remain. |
+| Production readiness | Not achieved | The recorded Ubuntu package row passed, but current-package verification, public-release closure, broader compatibility, and production validation remain. |
 
 ## Configuration reconciliation
 
@@ -32,7 +33,6 @@ Bash engine; their presence does not grant Qt or helper capabilities.
 
 1. The same-connection mutable-cancellation defect remains unresolved and Qt
    Cancel stays disabled.
-2. No distribution other than Ubuntu 24.04 has evidence for the new
-   release-candidate package.
-3. ShellCheck was unavailable in the initial local baseline; CI installs it as
-   a mandatory check.
+2. Publication metadata changed the package after the recorded Gate 4.5 row;
+   current builder output needs a replacement Ubuntu 24.04 VM row.
+3. No other distribution has package-specific evidence.

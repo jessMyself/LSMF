@@ -32,9 +32,10 @@ There is no browser or HTTP product surface.
 
 - Live Bash hardening and rollback can alter the host and belong only in an
   approved disposable VM until release verification is complete.
-- A source checkout installs no helper. The release-candidate package passed a
-  bounded offline Ubuntu 24.04 install/removal row but remains unapproved for
-  workstation or production use.
+- A source checkout installs no helper. The recorded Gate 4.5 package passed a
+  bounded offline Ubuntu 24.04 install/removal row. Publication metadata then
+  changed the archive, so current builder output needs a replacement VM row and
+  remains unapproved for workstation or production use.
 - The production helper must derive peer identity from IPC credentials, obtain
   per-action authorization, accept no arbitrary commands or paths, and write a
   protected audit record.

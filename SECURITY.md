@@ -3,8 +3,10 @@
 ## Project status
 
 LSMF is an experimental release candidate, not production-ready software. The
-only package-specific VM evidence is a bounded offline Ubuntu 24.04 amd64 row.
-Other distributions and real workstation installation remain unsupported.
+only package-specific VM evidence is a bounded offline Ubuntu 24.04 amd64 row
+for the recorded Gate 4.5 artifact. Publication metadata changed the package
+after that row, so a newly built archive is not VM-verified. Other
+distributions and real workstation installation remain unsupported.
 
 ## Reporting a vulnerability
 
@@ -12,8 +14,8 @@ Do not publish suspected vulnerabilities, credentials, exploit details, or
 sensitive logs in a public issue.
 
 Use GitHub's private vulnerability-reporting feature for this repository. If
-that feature is unavailable, open a minimal issue requesting a private contact
-channel without including technical details.
+that feature is unavailable, do not disclose technical details in an issue;
+wait for the private reporting channel to be restored.
 
 Include, when safe:
 

@@ -5,60 +5,6 @@ All notable changes to the Linux Security Management Framework (LSMF) will be do
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2026-06-28
-
-### Added
-- Initial release of Linux Security Management Framework
-- Core framework with modular architecture
-- Comprehensive system detection
-  - OS and distribution detection
-  - Desktop environment detection
-  - Virtualization and container detection
-  - Cloud provider detection
-  - Firewall and MAC system detection
-- Core library functions
-  - Logging system with multiple levels
-  - Backup and restore functionality
-  - Rollback system
-  - Report generation (TXT, JSON, HTML)
-- Hardening modules
-  - SSH hardening (strong ciphers, key auth, rate limiting)
-  - Firewall hardening (UFW, firewalld, iptables, nftables)
-  - Network hardening (sysctl security settings)
-  - Kernel hardening (ASLR, ptrace restrictions, core dumps)
-- User interface
-  - Interactive dialog-based menu
-  - Command-line interface
-  - Progress indicators
-- Configuration system
-  - Main configuration file
-  - Security profiles (Desktop, Server, Maximum Lockdown)
-- Installation and uninstallation scripts
-- Comprehensive documentation
-  - README with usage guide
-  - AGENTS.md for development
-  - Module development templates
-- Support for multiple distributions
-  - Debian 12+
-  - Ubuntu 22.04+
-  - Linux Mint
-  - KDE Neon
-  - Rocky Linux
-  - AlmaLinux
-  - Fedora
-  - Kali Linux (best effort)
-- Security scoring system
-- Automated backup before all changes
-- Rollback functionality
-- Dry-run mode
-- Multiple operation modes (interactive, unattended, audit-only)
-
-### Security
-- CIS Benchmark aligned hardening
-- Safe defaults for all operations
-- Validation before applying changes
-- Automatic rollback on failure
-
 ## [Unreleased]
 
 ### Added
@@ -85,9 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Deterministic CI covering Bash, Python, headless Qt, protocol/security,
   temporary-root integration, and offline Debian-package inspection
 - Debian-family Qt/helper release-candidate builder with a pinned offline
-  PySide6 runtime; the exact artifact passed its bounded Ubuntu 24.04 VM row,
-  while workstation installation and publication remain unapproved pending
-  release closure
+  PySide6 runtime; the recorded Gate 4.5 artifact passed its bounded Ubuntu
+  24.04 VM row. Publication metadata subsequently changed the archive, so a
+  newly built artifact requires replacement VM verification
 
 ### Changed
 
@@ -132,5 +78,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **1.0.0** - Historical project version; no production-ready release has been
-  verified
+No production release has been issued. The current package version is a release
+candidate and is not production-ready.

@@ -19,8 +19,10 @@ evidence-backed release claims.
   kernel-plus-network transaction, with eligible backup IDs and exact rollback.
 - Mutable Qt Cancel remains disabled because its same-connection terminal-order
   defect is unresolved.
-- The deterministic amd64 Debian-family package passed one bounded, offline
-  Ubuntu 24.04 VM row. Other distributions remain unverified targets.
+- A recorded amd64 Debian-family candidate passed one bounded, offline Ubuntu
+  24.04 VM row. Publication-closure metadata changed the package archive after
+  that row; a newly built archive requires replacement VM verification.
+  Other distributions remain unverified targets.
 
 Passing that VM row does not approve workstation installation, establish broad
 distribution support, or make the project production-ready.
@@ -74,8 +76,9 @@ tests or mocks.
 
 `packaging/debian/build-package.sh` builds the deterministic amd64 package from
 an explicit absolute output directory and version. Package construction does
-not install it. The artifact is intended for reviewed, isolated verification;
-it is not a general installation recommendation.
+not install it. The current builder includes third-party notices added after
+the recorded Gate 4.5 artifact, so its output must complete a replacement VM
+row before any binary release. It is not a general installation recommendation.
 
 ## Documentation
 
@@ -97,4 +100,6 @@ defects; review the code and use it only in appropriate test environments.
 
 ## License
 
-MIT; see [LICENSE](LICENSE).
+LSMF's own source is MIT-licensed; see [LICENSE](LICENSE). The release-candidate
+package also redistributes pinned PySide6, Qt, and Shiboken components under
+their applicable open-source terms. See [third-party notices](THIRD_PARTY_NOTICES.md).

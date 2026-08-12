@@ -211,11 +211,13 @@ installation and startup documentation is current; the final diff contains no
 unrelated user work.
 
 **Status (2026-08-11):** Gates 4.0 through 4.4 completed their approved source
-work. The corrected Debian-family Qt/helper release candidate then passed the
+work. The corrected Debian-family Qt/helper Gate 4.5 candidate then passed the
 bounded isolated Ubuntu 24.04 Gate 4.5 row: offline install/reinstall, packaged
 Qt smoke, remaining helper stateful scenarios, reboot-persistent exact
 recovery, uninstall, clean shutdown, and powered-off image integrity. Other
-distributions, Gate 4.6 release closure, commits, and publication remain open.
+distributions and Gate 4.6 source-publication closure remain open. Publication
+metadata later changed the archive, so current builder output needs a
+replacement Ubuntu VM row before binary release.
 
 ## Program completion rule
 

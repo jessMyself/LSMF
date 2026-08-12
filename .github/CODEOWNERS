@@ -1,0 +1,7 @@
+# Security-sensitive boundaries require maintainer review.
+/desktop/ @jessMyself
+/lsmf/ @jessMyself
+/packaging/ @jessMyself
+/src/ @jessMyself
+/.github/workflows/ @jessMyself
+/SECURITY.md @jessMyself

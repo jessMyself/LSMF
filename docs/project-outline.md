@@ -59,9 +59,10 @@ terminal-ordering defect.
 The repository contains the typed protocol, credential-bound system-bus
 service, per-action Polkit authorization, fixed executors, protected audit,
 durable recovery, tests, service inputs, and a Debian-family package builder.
-A source checkout installs nothing. The release-candidate package passed its
-bounded offline Ubuntu 24.04 VM row, but is not approved for workstation use
-or another distribution before release closure.
+A source checkout installs nothing. The recorded Gate 4.5 package passed its
+bounded offline Ubuntu 24.04 VM row. Publication metadata subsequently changed
+the archive, so a newly built package requires replacement VM verification and
+is not approved for workstation use or another distribution.
 
 ## Feature configuration direction
 
@@ -103,8 +104,9 @@ The program contains exactly four user-gated sections:
 1. **Disposable-VM helper integration:** completed.
 2. **Qt audit and verification:** completed with cancellation limitation.
 3. **Qt apply and rollback:** completed with durable recovery proof.
-4. **Release verification:** active; source reconciliation and package
-   preparation do not substitute for the separately approved VM matrix.
+4. **Release verification:** source closure is active; the recorded package row
+   passed, but publication metadata means a new archive needs a replacement VM
+   row. Source reconciliation and package inspection do not substitute for it.
 
 Detailed scope and acceptance criteria are maintained in
 `project-review/consolidated-qt-roadmap.md`.

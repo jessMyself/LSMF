@@ -13,7 +13,7 @@ jobs:
     env:
       QT_QPA_PLATFORM: offscreen
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install system checks
         run: sudo apt-get update && sudo apt-get install -y libegl1 shellcheck
       - name: Create test environment
@@ -48,6 +48,8 @@ jobs:
           packaging/debian/build-package.sh --output "${RUNNER_TEMP}/packages"
           dpkg-deb --info "${RUNNER_TEMP}"/packages/*.deb
           dpkg-deb --contents "${RUNNER_TEMP}"/packages/*.deb
+          dpkg-deb --contents "${RUNNER_TEMP}"/packages/*.deb | grep -F './usr/share/doc/lsmf-privileged-helper/THIRD_PARTY_NOTICES.md'
+          dpkg-deb --contents "${RUNNER_TEMP}"/packages/*.deb | grep -F './usr/share/doc/lsmf-privileged-helper/LGPL-3.0.txt'
       - name: Offline Ubuntu dependency metadata
         run: bash scripts/verify_offline_dependencies.sh "${GITHUB_WORKSPACE}/packaging/debian/.ubuntu-deps"
       - name: Diff hygiene

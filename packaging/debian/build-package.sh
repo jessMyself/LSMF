@@ -108,6 +108,10 @@ install -m 0644 "${repository_root}/docs/privileged-helper.md" \
     "${package_root}/usr/share/doc/lsmf-privileged-helper/privileged-helper.md"
 install -m 0644 "${repository_root}/LICENSE" \
     "${package_root}/usr/share/doc/lsmf-privileged-helper/copyright"
+install -m 0644 "${repository_root}/THIRD_PARTY_NOTICES.md" \
+    "${package_root}/usr/share/doc/lsmf-privileged-helper/THIRD_PARTY_NOTICES.md"
+install -m 0644 "${repository_root}/licenses/LGPL-3.0.txt" \
+    "${package_root}/usr/share/doc/lsmf-privileged-helper/LGPL-3.0.txt"
 
 if find "${package_root}" -type l -print -quit | grep -q .; then
     echo "Package payload must not contain symlinks" >&2
