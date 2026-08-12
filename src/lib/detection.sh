@@ -23,6 +23,7 @@ declare -g SECURE_BOOT=""
 
 detect_os() {
     if [[ -f /etc/os-release ]]; then
+        # shellcheck disable=SC1091 # Standard OS metadata exists only on the target system.
         source /etc/os-release
         OS_NAME="${NAME:-Unknown}"
         OS_VERSION="${VERSION_ID:-Unknown}"
@@ -30,6 +31,7 @@ detect_os() {
         OS_ID_LIKE="${ID_LIKE:-}"
         OS_CODENAME="${VERSION_CODENAME:-}"
     elif [[ -f /etc/lsb-release ]]; then
+        # shellcheck disable=SC1091 # Standard fallback metadata exists only on the target system.
         source /etc/lsb-release
         OS_NAME="${DISTRIB_ID:-Unknown}"
         OS_VERSION="${DISTRIB_RELEASE:-Unknown}"
@@ -193,12 +195,15 @@ detect_boot_mode() {
 
 detect_secure_boot() {
     SECURE_BOOT="disabled"
-    
-    if [[ -f /sys/firmware/efi/efivars/SecureBoot-* ]]; then
+
+    local secure_boot_variable
+    for secure_boot_variable in /sys/firmware/efi/efivars/SecureBoot-*; do
+        [[ -f "${secure_boot_variable}" ]] || continue
         local sb_value
-        sb_value=$(od -An -t u1 /sys/firmware/efi/efivars/SecureBoot-* 2>/dev/null | awk '{print $NF}')
+        sb_value=$(od -An -t u1 "${secure_boot_variable}" 2>/dev/null | awk '{print $NF}')
         [[ "${sb_value}" == "1" ]] && SECURE_BOOT="enabled"
-    fi
+        break
+    done
     
     log_debug "Secure Boot: ${SECURE_BOOT}"
 }

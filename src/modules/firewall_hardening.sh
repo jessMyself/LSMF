@@ -2,7 +2,9 @@
 
 set -Eeuo pipefail
 
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_NAME="firewall_hardening"
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_VERSION="1.0.0"
 MODULE_ENABLED="${MODULE_ENABLED:-true}"
 
@@ -63,8 +65,8 @@ install_firewall() {
 harden_ufw() {
     log_info "Configuring UFW firewall..."
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "firewall_ufw" "UFW firewall configuration")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "firewall_ufw" "UFW firewall configuration")
     
     execute_command "ufw --force reset"
     
@@ -99,8 +101,8 @@ harden_ufw() {
 harden_firewalld() {
     log_info "Configuring firewalld..."
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "firewall_firewalld" "Firewalld configuration")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "firewall_firewalld" "Firewalld configuration")
     
     execute_command "systemctl enable --now firewalld"
     
@@ -128,8 +130,8 @@ harden_firewalld() {
 harden_iptables() {
     log_info "Configuring iptables..."
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "firewall_iptables" "Iptables configuration")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "firewall_iptables" "Iptables configuration")
     
     backup_file "/etc/iptables/rules.v4" 2>/dev/null || true
     backup_file "/etc/iptables/rules.v6" 2>/dev/null || true
@@ -168,8 +170,8 @@ harden_iptables() {
 harden_nftables() {
     log_info "Configuring nftables..."
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "firewall_nftables" "Nftables configuration")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "firewall_nftables" "Nftables configuration")
     
     local nft_config="/etc/nftables.conf"
     backup_file "${nft_config}" 2>/dev/null || true

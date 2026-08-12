@@ -36,7 +36,7 @@ test_shellcheck() {
     local failed=0
     
     while IFS= read -r file; do
-        if ! shellcheck "${file}" >/dev/null 2>&1; then
+        if ! shellcheck -x "${file}" >/dev/null 2>&1; then
             echo "  ✗ Failed: ${file}"
             failed=1
         fi

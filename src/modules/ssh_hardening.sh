@@ -2,7 +2,9 @@
 
 set -Eeuo pipefail
 
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_NAME="ssh_hardening"
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_VERSION="1.0.0"
 MODULE_ENABLED="${MODULE_ENABLED:-true}"
 
@@ -23,8 +25,8 @@ run_ssh_hardening() {
     
     backup_file "${ssh_config}"
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "ssh_hardening" "SSH configuration hardening")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "ssh_hardening" "SSH configuration hardening")
     
     log_info "Hardening SSH configuration..."
     

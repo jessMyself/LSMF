@@ -2,7 +2,9 @@
 
 set -Eeuo pipefail
 
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_NAME="network_hardening"
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_VERSION="1.0.0"
 MODULE_ENABLED="${MODULE_ENABLED:-true}"
 
@@ -13,8 +15,8 @@ run_network_hardening() {
     
     backup_file "/etc/sysctl.conf"
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "network_hardening" "Network sysctl hardening")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "network_hardening" "Network sysctl hardening")
     
     log_info "Configuring network security parameters..."
     

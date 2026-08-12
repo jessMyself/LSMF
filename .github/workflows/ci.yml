@@ -27,7 +27,7 @@ jobs:
       - name: Bash syntax
         run: bash -n src/lsmf src/lib/*.sh src/modules/*.sh src/ui/*.sh scripts/*.sh packaging/privileged-helper/*.sh packaging/debian/*.sh
       - name: ShellCheck
-        run: shellcheck src/lsmf src/lib/*.sh src/modules/*.sh src/ui/*.sh scripts/*.sh packaging/privileged-helper/*.sh packaging/debian/*.sh
+        run: shellcheck src/lsmf src/lib/*.sh src/modules/*.sh src/ui/*.sh scripts/*.sh packaging/privileged-helper/*.sh packaging/debian/*.sh tests/*.sh
       - name: Python compilation
         run: .ci-venv/bin/python -m compileall -q desktop lsmf tests
       - name: Python and headless Qt tests

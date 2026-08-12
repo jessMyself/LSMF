@@ -11,6 +11,7 @@ mkdir -p "${FIXTURE_ROOT}/modules" "${FIXTURE_ROOT}/config/profiles"
 
 for module_id in alpha_module beta_module fail_module; do
     module_path="${FIXTURE_ROOT}/modules/${module_id}.sh"
+    # shellcheck disable=SC2016 # The generated fixture expands these variables when executed.
     printf '%s\n' '#!/usr/bin/env bash' \
         'printf '\''%s\n'\'' "$(basename "$0" .sh)" >> "${EXECUTION_SENTINEL}"' \
         '[[ "$(basename "$0" .sh)" != "fail_module" ]]' > "${module_path}"
@@ -54,6 +55,10 @@ if (trap - ERR; parse_arguments --module); then
 fi
 if (trap - ERR; parse_arguments --profile ""); then
     echo "Empty profile value unexpectedly parsed" >&2
+    exit 1
+fi
+if (trap - ERR; parse_arguments --no-backup harden >/dev/null 2>&1); then
+    echo "Unsafe no-backup option unexpectedly parsed" >&2
     exit 1
 fi
 unset RUN_MODULE PROFILE

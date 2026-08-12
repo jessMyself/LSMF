@@ -16,10 +16,16 @@ else
     CONFIG_DIR="/etc/lsmf"
 fi
 
+# These paths resolve to the adjacent source tree or fixed installed root.
+# shellcheck source=src/lib/common.sh
 source "${LIB_DIR}/common.sh"
+# shellcheck source=src/lib/backup.sh
 source "${LIB_DIR}/backup.sh"
+# shellcheck source=src/lib/detection.sh
 source "${LIB_DIR}/detection.sh"
+# shellcheck source=src/lib/reporting.sh
 source "${LIB_DIR}/reporting.sh"
+# shellcheck source=src/ui/menu.sh
 source "${UI_DIR}/menu.sh"
 
 show_usage() {
@@ -49,7 +55,6 @@ Options:
   -y, --yes               Non-interactive mode
   -q, --quiet             Quiet mode
   --verbose               Verbose output
-  --no-backup             Skip backup creation (dangerous!)
 
 Examples:
   $(basename "$0")                    Launch interactive menu
@@ -80,7 +85,7 @@ parse_arguments() {
                     log_error "$1 requires a non-empty file path"
                     return 1
                 fi
-                LSMF_CONFIG="$2"
+                export LSMF_CONFIG="$2"
                 shift 2
                 ;;
             -m|--module)
@@ -108,15 +113,11 @@ parse_arguments() {
                 shift
                 ;;
             -q|--quiet)
-                LSMF_VERBOSE="false"
+                export LSMF_VERBOSE="false"
                 shift
                 ;;
             --verbose)
-                LSMF_VERBOSE="true"
-                shift
-                ;;
-            --no-backup)
-                SKIP_BACKUP="true"
+                export LSMF_VERBOSE="true"
                 shift
                 ;;
             audit|harden|rollback|verify|score|report|list-backups|list-modules|ui)
@@ -156,7 +157,7 @@ run_audit() {
     fi
     
     calculate_security_score
-    generate_report
+    generate_report ""
     
     log_success "Audit complete. Security score: ${SECURITY_SCORE}/100"
     log_info "Report available in: ${LSMF_REPORT_DIR}/${LSMF_RUN_ID}/"
@@ -214,7 +215,7 @@ run_hardening() {
     done
     
     calculate_security_score
-    generate_report
+    generate_report ""
     
     if [[ ${failures} -ne 0 ]]; then
         log_error "Hardening failed for ${failures} of ${total} module(s)"
@@ -254,7 +255,8 @@ select_all_modules() {
 
 select_hardening_modules() {
     local output_name=$1
-    local -n selected_modules=${output_name}
+    # shellcheck disable=SC2178 # The validated name intentionally becomes an array reference.
+    local -n selected_modules="${output_name}"
     selected_modules=()
 
     if [[ -v RUN_MODULE && -v PROFILE ]]; then
@@ -321,7 +323,8 @@ select_hardening_modules() {
 }
 
 select_verification_modules() {
-    local -n selected_modules=$1
+    # shellcheck disable=SC2178 # The caller supplies an array name by contract.
+    local -n selected_modules="$1"
     selected_modules=()
 
     if [[ -n "${RUN_MODULE:-}" ]]; then
@@ -349,6 +352,7 @@ verify_module_script() {
 
     # Source only a module selected from the fixed module directory, then call
     # its declared verification entry point without executing its apply path.
+    # shellcheck disable=SC1090 # module is resolved from the fixed module directory above.
     MODULE_ENABLED=false source "${module}"
     if ! declare -F "${verify_function}" >/dev/null; then
         log_error "Module ${module_name} has no ${verify_function} function"
@@ -465,7 +469,7 @@ run_interactive_ui() {
                 ;;
             12)
                 cleanup_dialog
-                log_info "Exiting LSMF. Runtime: $(format_duration $(get_runtime))"
+                log_info "Exiting LSMF. Runtime: $(format_duration "$(get_runtime)")"
                 exit 0
                 ;;
             *)
@@ -509,7 +513,7 @@ main() {
             ;;
         report)
             calculate_security_score
-            generate_report
+            generate_report ""
             ;;
         list-backups)
             list_backups
@@ -532,7 +536,7 @@ main() {
     
     local runtime
     runtime=$(get_runtime)
-    log_info "Total runtime: $(format_duration ${runtime})"
+    log_info "Total runtime: $(format_duration "${runtime}")"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then

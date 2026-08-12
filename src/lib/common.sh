@@ -29,7 +29,7 @@ declare -A LSMF_COLORS=(
 
 error_handler() {
     local line_no=$1
-    local bash_lineno=$2
+    local _bash_lineno=$2
     local last_command=$3
     log_error "Error on line ${line_no}: command '${last_command}' exited with status $?"
     cleanup_on_error
@@ -134,7 +134,7 @@ execute_command() {
     if [[ ${exit_code} -ne 0 ]]; then
         log_error "Command failed with exit code ${exit_code}: ${cmd}"
         log_debug "Output: ${output}"
-        return ${exit_code}
+        return "${exit_code}"
     fi
     
     [[ -n "${output}" ]] && log_debug "Output: ${output}"
@@ -385,7 +385,7 @@ set_config_value() {
         echo "Invalid configuration key: ${key}" >&2
         return 1
     fi
-    if [[ "${value}" == *'"'* || "${value}" == *'\'* || "${value}" == *$'\n'* || "${value}" == *$'\r'* ]]; then
+    if [[ "${value}" == *'"'* || "${value}" == *\\* || "${value}" == *$'\n'* || "${value}" == *$'\r'* ]]; then
         echo "Invalid characters in value for ${key}" >&2
         return 1
     fi

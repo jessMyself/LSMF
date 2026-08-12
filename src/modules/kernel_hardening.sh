@@ -2,7 +2,9 @@
 
 set -Eeuo pipefail
 
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_NAME="kernel_hardening"
+# shellcheck disable=SC2034 # Module metadata is consumed by discovery tooling.
 MODULE_VERSION="1.0.0"
 MODULE_ENABLED="${MODULE_ENABLED:-true}"
 
@@ -13,8 +15,8 @@ run_kernel_hardening() {
     
     backup_file "/etc/sysctl.conf"
     
-    local rollback_id
-    rollback_id=$(create_rollback_point "kernel_hardening" "Kernel security hardening")
+    local _rollback_id
+    _rollback_id=$(create_rollback_point "kernel_hardening" "Kernel security hardening")
     
     log_info "Configuring kernel security parameters..."
     

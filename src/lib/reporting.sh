@@ -31,7 +31,7 @@ Linux Security Management Framework (LSMF) - Security Report
 
 Report ID: ${LSMF_RUN_ID}
 Generated: $(date '+%Y-%m-%d %H:%M:%S %Z')
-Runtime: $(format_duration $(get_runtime))
+Runtime: $(format_duration "$(get_runtime)")
 
 ================================================================================
 EXECUTIVE SUMMARY

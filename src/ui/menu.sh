@@ -63,8 +63,6 @@ show_module_selection() {
         if [[ -f "${module}" ]]; then
             local module_name
             module_name=$(basename "${module}" .sh)
-            local module_desc
-            module_desc=$(grep "^# Description:" "${module}" | cut -d: -f2- | xargs || echo "No description")
             menu_items+=("${i}" "${module_name}" "off")
             ((i++))
         fi
@@ -100,10 +98,14 @@ show_profile_menu() {
 }
 
 show_backup_menu() {
-    local backups
-    backups=$(list_backups_for_menu)
-    
-    if [[ -z "${backups}" ]]; then
+    local backup_items=()
+    local backup_number
+    local backup_label
+    while IFS=$'\t' read -r backup_number backup_label; do
+        [[ -n "${backup_number}" ]] && backup_items+=("${backup_number}" "${backup_label}")
+    done < <(list_backups_for_menu)
+
+    if [[ ${#backup_items[@]} -eq 0 ]]; then
         dialog --backtitle "LSMF v${LSMF_VERSION}" \
             --title "Backups" \
             --msgbox "No backups found." 8 50
@@ -114,7 +116,7 @@ show_backup_menu() {
     choice=$(dialog --clear --backtitle "LSMF v${LSMF_VERSION}" \
         --title "Restore Backup" \
         --menu "Choose a backup to restore:" 20 70 12 \
-        ${backups} \
+        "${backup_items[@]}" \
         2>&1 >/dev/tty)
     
     echo "${choice}"
@@ -137,7 +139,7 @@ list_backups_for_menu() {
                 file_count=$(wc -l < "${manifest}")
             fi
             
-            echo "${i} \"${backup_id} (${file_count} files)\""
+            printf '%s\t%s\n' "${i}" "${backup_id} (${file_count} files)"
             ((i++))
         fi
     done
