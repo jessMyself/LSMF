@@ -49,6 +49,6 @@ jobs:
           dpkg-deb --info "${RUNNER_TEMP}"/packages/*.deb
           dpkg-deb --contents "${RUNNER_TEMP}"/packages/*.deb
       - name: Offline Ubuntu dependency metadata
-        run: bash scripts/verify_offline_dependencies.sh packaging/debian/.ubuntu-deps
+        run: bash scripts/verify_offline_dependencies.sh "${GITHUB_WORKSPACE}/packaging/debian/.ubuntu-deps"
       - name: Diff hygiene
         run: git diff --check
