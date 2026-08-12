@@ -1,0 +1,540 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [[ -d "${SCRIPT_DIR}/lib" ]]; then
+    LIB_DIR="${SCRIPT_DIR}/lib"
+    MODULES_DIR="${SCRIPT_DIR}/modules"
+    UI_DIR="${SCRIPT_DIR}/ui"
+    CONFIG_DIR="$(dirname "${SCRIPT_DIR}")/config"
+else
+    LIB_DIR="${LSMF_ROOT:-/opt/lsmf}/lib"
+    MODULES_DIR="${LSMF_ROOT:-/opt/lsmf}/modules"
+    UI_DIR="${LSMF_ROOT:-/opt/lsmf}/ui"
+    CONFIG_DIR="/etc/lsmf"
+fi
+
+source "${LIB_DIR}/common.sh"
+source "${LIB_DIR}/backup.sh"
+source "${LIB_DIR}/detection.sh"
+source "${LIB_DIR}/reporting.sh"
+source "${UI_DIR}/menu.sh"
+
+show_usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS] [COMMAND]
+
+Linux Security Management Framework (LSMF) v${LSMF_VERSION}
+
+Commands:
+  audit       Run security audit (non-destructive)
+  harden      Apply security hardening
+  rollback    Restore previous configuration
+  verify      Verify hardening is applied
+  score       Display security score
+  report      Generate security report
+  list-backups    List available backups
+  list-modules    List available modules
+  ui          Launch interactive menu (default)
+
+Options:
+  -h, --help              Show this help message
+  -v, --version           Show version information
+  -c, --config FILE       Use alternate configuration file
+  -m, --module MODULE     Run specific module
+  -p, --profile PROFILE   Use specific profile
+  -d, --dry-run           Show what would be done
+  -y, --yes               Non-interactive mode
+  -q, --quiet             Quiet mode
+  --verbose               Verbose output
+  --no-backup             Skip backup creation (dangerous!)
+
+Examples:
+  $(basename "$0")                    Launch interactive menu
+  $(basename "$0") audit              Run security audit
+  $(basename "$0") harden             Apply all hardening
+  $(basename "$0") -m ssh_hardening   Run SSH hardening only
+  $(basename "$0") -p server harden   Apply server profile
+  $(basename "$0") rollback           Restore last configuration
+
+EOF
+}
+
+parse_arguments() {
+    local command=""
+    
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -h|--help)
+                show_usage
+                exit 0
+                ;;
+            -v|--version)
+                echo "LSMF v${LSMF_VERSION}"
+                exit 0
+                ;;
+            -c|--config)
+                if [[ $# -lt 2 || -z "$2" ]]; then
+                    log_error "$1 requires a non-empty file path"
+                    return 1
+                fi
+                LSMF_CONFIG="$2"
+                shift 2
+                ;;
+            -m|--module)
+                if [[ $# -lt 2 || -z "$2" ]]; then
+                    log_error "$1 requires a non-empty module ID"
+                    return 1
+                fi
+                RUN_MODULE="$2"
+                shift 2
+                ;;
+            -p|--profile)
+                if [[ $# -lt 2 || -z "$2" ]]; then
+                    log_error "$1 requires a non-empty profile ID"
+                    return 1
+                fi
+                PROFILE="$2"
+                shift 2
+                ;;
+            -d|--dry-run)
+                LSMF_DRY_RUN="true"
+                shift
+                ;;
+            -y|--yes)
+                LSMF_INTERACTIVE="false"
+                shift
+                ;;
+            -q|--quiet)
+                LSMF_VERBOSE="false"
+                shift
+                ;;
+            --verbose)
+                LSMF_VERBOSE="true"
+                shift
+                ;;
+            --no-backup)
+                SKIP_BACKUP="true"
+                shift
+                ;;
+            audit|harden|rollback|verify|score|report|list-backups|list-modules|ui)
+                command="$1"
+                shift
+                ;;
+            *)
+                log_error "Unknown option: $1"
+                show_usage
+                exit 1
+                ;;
+        esac
+    done
+    
+    LSMF_COMMAND="${command:-ui}"
+}
+
+run_audit() {
+    log_info "Running security audit..."
+    
+    run_system_detection
+    print_system_info
+    
+    log_info "Checking current security status..."
+    
+    [[ "${FIREWALL_TYPE}" == "none" ]] && add_warning "No firewall detected"
+    [[ "${MAC_SYSTEM}" == "none" ]] && add_warning "No MAC system (AppArmor/SELinux) active"
+    [[ "${SECURE_BOOT}" == "disabled" ]] && add_recommendation "Enable Secure Boot"
+    
+    if package_installed openssh-server; then
+        if grep -qE "^PermitRootLogin\s+yes" /etc/ssh/sshd_config 2>/dev/null; then
+            add_warning "SSH root login is enabled"
+        fi
+        if grep -qE "^PasswordAuthentication\s+yes" /etc/ssh/sshd_config 2>/dev/null; then
+            add_warning "SSH password authentication is enabled"
+        fi
+    fi
+    
+    calculate_security_score
+    generate_report
+    
+    log_success "Audit complete. Security score: ${SECURITY_SCORE}/100"
+    log_info "Report available in: ${LSMF_REPORT_DIR}/${LSMF_RUN_ID}/"
+}
+
+run_hardening() {
+    log_info "Starting system hardening..."
+    
+    if [[ "${LSMF_INTERACTIVE}" == "true" ]]; then
+        if ! confirm "This will modify system configuration. Continue?" "n"; then
+            log_info "Hardening cancelled by user"
+            return 0
+        fi
+    fi
+    
+    run_system_detection
+    
+    if ! is_supported_os; then
+        log_error "Unsupported operating system. Aborting."
+        return 1
+    fi
+    
+    local modules_to_run=()
+    select_hardening_modules modules_to_run || return 1
+
+    if [[ "${LSMF_DRY_RUN}" == "true" ]]; then
+        local selected_module
+        for selected_module in "${modules_to_run[@]}"; do
+            log_info "[DRY-RUN] Would run module: $(basename "${selected_module}" .sh)"
+        done
+        log_success "Dry-run hardening selection complete; no module was executed"
+        return 0
+    fi
+    
+    local total=${#modules_to_run[@]}
+    local current=0
+    
+    local failures=0
+    for module in "${modules_to_run[@]}"; do
+        current=$((current + 1))
+        local module_name
+        module_name=$(basename "${module}" .sh)
+        
+        log_info "[${current}/${total}] Running module: ${module_name}"
+        
+        if [[ -f "${module}" ]]; then
+            if bash "${module}"; then
+                log_success "Module ${module_name} completed"
+            else
+                log_error "Module ${module_name} failed"
+                add_warning "Module ${module_name} failed to complete"
+                failures=$((failures + 1))
+            fi
+        fi
+    done
+    
+    calculate_security_score
+    generate_report
+    
+    if [[ ${failures} -ne 0 ]]; then
+        log_error "Hardening failed for ${failures} of ${total} module(s)"
+        return 1
+    fi
+
+    log_success "Hardening complete. Security score: ${SECURITY_SCORE}/100"
+    log_info "Report available in: ${LSMF_REPORT_DIR}/${LSMF_RUN_ID}/"
+}
+
+module_path_for_id() {
+    local module_id=$1
+    if [[ ! "${module_id}" =~ ^[a-z][a-z0-9_]{0,63}$ ]]; then
+        log_error "Invalid module ID: ${module_id}"
+        return 1
+    fi
+    local module_path="${MODULES_DIR}/${module_id}.sh"
+    if [[ ! -f "${module_path}" || -L "${module_path}" ]]; then
+        log_error "Unknown or unsafe module: ${module_id}"
+        return 1
+    fi
+    printf '%s\n' "${module_path}"
+}
+
+select_all_modules() {
+    local -n selected_modules=$1
+    selected_modules=()
+    local module
+    for module in "${MODULES_DIR}"/*.sh; do
+        [[ -f "${module}" && ! -L "${module}" ]] && selected_modules+=("${module}")
+    done
+    if [[ ${#selected_modules[@]} -eq 0 ]]; then
+        log_error "No modules are available"
+        return 1
+    fi
+}
+
+select_hardening_modules() {
+    local output_name=$1
+    local -n selected_modules=${output_name}
+    selected_modules=()
+
+    if [[ -v RUN_MODULE && -v PROFILE ]]; then
+        log_error "--module and --profile cannot be used together"
+        return 1
+    fi
+    if [[ -v RUN_MODULE ]]; then
+        if [[ -z "${RUN_MODULE}" ]]; then
+            log_error "Module ID cannot be empty"
+            return 1
+        fi
+        local requested_module
+        requested_module=$(module_path_for_id "${RUN_MODULE}") || return 1
+        selected_modules=("${requested_module}")
+        return 0
+    fi
+    if [[ ! -v PROFILE ]]; then
+        select_all_modules "${output_name}"
+        return $?
+    fi
+    if [[ -z "${PROFILE}" || ! "${PROFILE}" =~ ^[a-z0-9][a-z0-9-]{0,63}$ ]]; then
+        log_error "Invalid profile ID: ${PROFILE}"
+        return 1
+    fi
+
+    local profile_path="${CONFIG_DIR}/profiles/${PROFILE}.conf"
+    if [[ ! -f "${profile_path}" || -L "${profile_path}" ]]; then
+        log_error "Unknown or unsafe profile: ${PROFILE}"
+        return 1
+    fi
+    local enabled_modules
+    if ! enabled_modules=$(read_config_value "ENABLED_MODULES" "${profile_path}"); then
+        log_error "Profile ${PROFILE} has no valid ENABLED_MODULES value"
+        return 1
+    fi
+    if [[ -z "${enabled_modules}" ]]; then
+        log_error "Profile ${PROFILE} selects no modules"
+        return 1
+    fi
+
+    local module_ids=()
+    read -r -a module_ids <<< "${enabled_modules}"
+    if [[ ${#module_ids[@]} -eq 1 && "${module_ids[0]}" == "all" ]]; then
+        select_all_modules "${output_name}"
+        return $?
+    fi
+
+    declare -A seen_modules=()
+    local module_id
+    for module_id in "${module_ids[@]}"; do
+        if [[ "${module_id}" == "all" ]]; then
+            log_error "Profile ${PROFILE} must use all by itself"
+            return 1
+        fi
+        if [[ -n "${seen_modules[${module_id}]:-}" ]]; then
+            log_error "Profile ${PROFILE} contains duplicate module: ${module_id}"
+            return 1
+        fi
+        seen_modules[${module_id}]=1
+        local module_path
+        module_path=$(module_path_for_id "${module_id}") || return 1
+        selected_modules+=("${module_path}")
+    done
+}
+
+select_verification_modules() {
+    local -n selected_modules=$1
+    selected_modules=()
+
+    if [[ -n "${RUN_MODULE:-}" ]]; then
+        local requested_module
+        requested_module=$(module_path_for_id "${RUN_MODULE}") || return 1
+        selected_modules=("${requested_module}")
+        return 0
+    fi
+
+    local module
+    for module in "${MODULES_DIR}"/*.sh; do
+        [[ -f "${module}" ]] && selected_modules+=("${module}")
+    done
+    if [[ ${#selected_modules[@]} -eq 0 ]]; then
+        log_error "No modules are available for verification"
+        return 1
+    fi
+}
+
+verify_module_script() {
+    local module=$1
+    local module_name
+    module_name=$(basename "${module}" .sh)
+    local verify_function="verify_${module_name}"
+
+    # Source only a module selected from the fixed module directory, then call
+    # its declared verification entry point without executing its apply path.
+    MODULE_ENABLED=false source "${module}"
+    if ! declare -F "${verify_function}" >/dev/null; then
+        log_error "Module ${module_name} has no ${verify_function} function"
+        return 1
+    fi
+    "${verify_function}"
+}
+
+run_verification() {
+    local modules_to_verify=()
+    select_verification_modules modules_to_verify || return 1
+
+    local failures=0
+    local module
+    for module in "${modules_to_verify[@]}"; do
+        local module_name
+        module_name=$(basename "${module}" .sh)
+        log_info "Verifying module: ${module_name}"
+        if verify_module_script "${module}"; then
+            log_success "Module ${module_name} verification passed"
+        else
+            log_error "Module ${module_name} verification failed"
+            failures=$((failures + 1))
+        fi
+    done
+
+    if [[ ${failures} -ne 0 ]]; then
+        log_error "Verification failed for ${failures} of ${#modules_to_verify[@]} module(s)"
+        return 1
+    fi
+    log_success "Verification passed for ${#modules_to_verify[@]} module(s)"
+}
+
+run_rollback_command() {
+    log_info "Available backups:"
+    list_backups
+    
+    local backup_id
+    read -r -p "Enter backup ID to restore (or press Enter to cancel): " backup_id
+    
+    if [[ -z "${backup_id}" ]]; then
+        log_info "Rollback cancelled"
+        return 0
+    fi
+    
+    if confirm "Restore backup ${backup_id}? This will overwrite current configuration." "n"; then
+        if restore_all "${backup_id}"; then
+            log_success "Rollback completed successfully"
+        else
+            log_error "Rollback failed"
+            return 1
+        fi
+    fi
+}
+
+run_interactive_ui() {
+    check_dialog
+    
+    while true; do
+        choice=$(show_main_menu)
+        
+        case "${choice}" in
+            1)
+                clear
+                run_audit
+                read -r -p "Press Enter to continue..."
+                ;;
+            2)
+                hardening_choice=$(show_hardening_menu)
+                case "${hardening_choice}" in
+                    1)
+                        clear
+                        run_hardening
+                        read -r -p "Press Enter to continue..."
+                        ;;
+                    2)
+                        show_message "Advanced Mode" "Advanced module selection will be available soon"
+                        ;;
+                    3)
+                        show_message "Profile Mode" "Profile-based hardening will be available soon"
+                        ;;
+                    4)
+                        ;;
+                esac
+                ;;
+            3)
+                clear
+                run_rollback_command
+                read -r -p "Press Enter to continue..."
+                ;;
+            4)
+                show_message "Reports" "Report viewer will be available soon"
+                ;;
+            5)
+                show_log_viewer
+                ;;
+            6)
+                show_message "Settings" "Configuration editor will be available soon"
+                ;;
+            7)
+                show_message "Update" "Framework update functionality will be available soon"
+                ;;
+            8)
+                show_message "Modules" "Individual module runner will be available soon"
+                ;;
+            9)
+                show_message "CIS Compliance" "CIS compliance scanner will be available soon"
+                ;;
+            10)
+                show_security_score_ui
+                ;;
+            11)
+                show_system_info_ui
+                ;;
+            12)
+                cleanup_dialog
+                log_info "Exiting LSMF. Runtime: $(format_duration $(get_runtime))"
+                exit 0
+                ;;
+            *)
+                cleanup_dialog
+                exit 0
+                ;;
+        esac
+    done
+}
+
+main() {
+    clear
+    print_banner
+    echo ""
+    
+    check_root || exit 1
+    
+    init_lsmf
+    
+    parse_arguments "$@" || return 1
+    local command="${LSMF_COMMAND}"
+    
+    case "${command}" in
+        audit)
+            run_system_detection
+            run_audit
+            ;;
+        harden)
+            run_hardening
+            ;;
+        rollback)
+            run_rollback_command
+            ;;
+        verify)
+            run_verification
+            ;;
+        score)
+            run_system_detection
+            calculate_security_score
+            echo "Security Score: ${SECURITY_SCORE}/100"
+            ;;
+        report)
+            calculate_security_score
+            generate_report
+            ;;
+        list-backups)
+            list_backups
+            ;;
+        list-modules)
+            log_info "Available modules:"
+            for module in "${MODULES_DIR}"/*.sh; do
+                [[ -f "${module}" ]] && echo "  - $(basename "${module}" .sh)"
+            done
+            ;;
+        ui)
+            run_interactive_ui
+            ;;
+        *)
+            log_error "Unknown command: ${command}"
+            show_usage
+            exit 1
+            ;;
+    esac
+    
+    local runtime
+    runtime=$(get_runtime)
+    log_info "Total runtime: $(format_duration ${runtime})"
+}
+
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi

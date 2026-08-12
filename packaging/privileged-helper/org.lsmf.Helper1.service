@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=org.lsmf.Helper1
+Exec=/usr/libexec/lsmf-privileged-helper
+User=root
+SystemdService=lsmf-privileged-helper.service

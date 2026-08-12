@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+readonly LSMF_INSTALLED_ROOT="/usr/lib/lsmf"
+readonly LSMF_CAPTURE_ROOT="/run/lsmf"
+export LSMF_INTERACTIVE=false
+
+if [[ ! -d "${LSMF_INSTALLED_ROOT}/lib" || ! -f "${LSMF_INSTALLED_ROOT}/lsmf" ]]; then
+    echo "Installed LSMF read-only runtime is unavailable" >&2
+    exit 70
+fi
+if [[ ! -d "${LSMF_CAPTURE_ROOT}" || -L "${LSMF_CAPTURE_ROOT}" ]]; then
+    echo "LSMF runtime directory is unavailable" >&2
+    exit 70
+fi
+
+source "${LSMF_INSTALLED_ROOT}/lsmf"
+# The installed CLI registers a process-wide ERR trap that exits from nested
+# read-only checks. This runner owns status capture and must reach its typed
+# terminal output for both success and failure.
+trap - ERR
+
+capture_file=$(mktemp "${LSMF_CAPTURE_ROOT}/read-only.XXXXXXXX")
+chmod 0600 "${capture_file}"
+trap 'rm -f -- "${capture_file}"' EXIT
+
+initialize_read_only_run() {
+    LSMF_RUN_ID="$(date +%Y%m%d_%H%M%S)_$$"
+    LSMF_START_TIME="$(date +%s)"
+    mkdir -p -- "${LSMF_LOG_DIR}/${LSMF_RUN_ID}" "${LSMF_REPORT_DIR}"
+}
+
+run_captured() {
+    local status=0
+    "$@" >"${capture_file}" 2>&1 || status=$?
+    cat -- "${capture_file}"
+    return "${status}"
+}
+
+case "${1:-}" in
+    audit)
+        [[ $# -eq 1 ]] || exit 64
+        status=0
+        initialize_read_only_run >"${capture_file}" 2>&1 || status=$?
+        if [[ ${status} -eq 0 ]]; then
+            set +e
+            run_audit >>"${capture_file}" 2>&1
+            status=$?
+        fi
+        finding_count=$((${#REPORT_WARNINGS[@]} + ${#REPORT_RECOMMENDATIONS[@]}))
+        printf 'LSMF_FINDING_COUNT=%d\n' "${finding_count}"
+        cat -- "${capture_file}"
+        exit "${status}"
+        ;;
+    verify)
+        [[ $# -eq 2 && "$2" == "kernel_hardening" ]] || exit 64
+        RUN_MODULE="kernel_hardening"
+        initialize_read_only_run
+        run_captured run_verification
+        ;;
+    *)
+        echo "Only audit and kernel_hardening verification are available" >&2
+        exit 64
+        ;;
+esac

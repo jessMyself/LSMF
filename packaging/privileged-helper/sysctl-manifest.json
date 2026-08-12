@@ -1,0 +1,64 @@
+{
+  "version": 2,
+  "module_order": ["kernel_hardening", "network_hardening"],
+  "single_apply": ["kernel_hardening"],
+  "multi_apply": [["kernel_hardening", "network_hardening"]],
+  "modules": {
+    "kernel_hardening": {
+      "relative_target": "etc/sysctl.d/99-lsmf-kernel.conf",
+      "settings": [
+        {"key": "kernel.randomize_va_space", "value": "2"},
+        {"key": "kernel.yama.ptrace_scope", "value": "1"},
+        {"key": "fs.protected_symlinks", "value": "1"},
+        {"key": "fs.protected_hardlinks", "value": "1"},
+        {"key": "fs.protected_fifos", "value": "2"},
+        {"key": "fs.protected_regular", "value": "2"},
+        {"key": "kernel.kptr_restrict", "value": "2"},
+        {"key": "kernel.dmesg_restrict", "value": "1"},
+        {"key": "kernel.printk", "value": "3 3 3 3"},
+        {"key": "net.core.bpf_jit_harden", "value": "2"},
+        {"key": "kernel.sysrq", "value": "0"},
+        {"key": "fs.suid_dumpable", "value": "0"},
+        {"key": "kernel.core_uses_pid", "value": "1"},
+        {"key": "kernel.modules_disabled", "value": "0"},
+        {"key": "kernel.perf_event_paranoid", "value": "3"},
+        {"key": "vm.mmap_min_addr", "value": "65536"},
+        {"key": "dev.tty.ldisc_autoload", "value": "0"}
+      ]
+    },
+    "network_hardening": {
+      "relative_target": "etc/sysctl.d/99-lsmf-network.conf",
+      "settings": [
+        {"key": "net.ipv4.conf.all.send_redirects", "value": "0"},
+        {"key": "net.ipv4.conf.default.send_redirects", "value": "0"},
+        {"key": "net.ipv4.conf.all.accept_redirects", "value": "0"},
+        {"key": "net.ipv4.conf.default.accept_redirects", "value": "0"},
+        {"key": "net.ipv6.conf.all.accept_redirects", "value": "0"},
+        {"key": "net.ipv6.conf.default.accept_redirects", "value": "0"},
+        {"key": "net.ipv4.conf.all.secure_redirects", "value": "0"},
+        {"key": "net.ipv4.conf.default.secure_redirects", "value": "0"},
+        {"key": "net.ipv4.conf.all.accept_source_route", "value": "0"},
+        {"key": "net.ipv4.conf.default.accept_source_route", "value": "0"},
+        {"key": "net.ipv6.conf.all.accept_source_route", "value": "0"},
+        {"key": "net.ipv6.conf.default.accept_source_route", "value": "0"},
+        {"key": "net.ipv4.conf.all.log_martians", "value": "1"},
+        {"key": "net.ipv4.conf.default.log_martians", "value": "1"},
+        {"key": "net.ipv4.conf.all.rp_filter", "value": "1"},
+        {"key": "net.ipv4.conf.default.rp_filter", "value": "1"},
+        {"key": "net.ipv4.icmp_echo_ignore_broadcasts", "value": "1"},
+        {"key": "net.ipv4.icmp_ignore_bogus_error_responses", "value": "1"},
+        {"key": "net.ipv4.tcp_syncookies", "value": "1"},
+        {"key": "net.ipv4.tcp_timestamps", "value": "0"},
+        {"key": "net.ipv6.conf.all.accept_ra", "value": "0"},
+        {"key": "net.ipv6.conf.default.accept_ra", "value": "0"},
+        {"key": "net.ipv4.conf.all.proxy_arp", "value": "0"},
+        {"key": "net.ipv4.tcp_max_syn_backlog", "value": "2048"},
+        {"key": "net.ipv4.tcp_synack_retries", "value": "2"},
+        {"key": "net.ipv4.tcp_syn_retries", "value": "5"},
+        {"key": "net.core.netdev_max_backlog", "value": "5000"},
+        {"key": "net.ipv4.ip_forward", "value": "0"},
+        {"key": "net.ipv6.conf.all.forwarding", "value": "0"}
+      ]
+    }
+  }
+}

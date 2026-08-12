@@ -1,0 +1,8 @@
+#!/usr/bin/python3
+"""Inactive package entry point for the fixed Section 3 runtime."""
+
+from lsmf.production_runtime import section3_main
+
+
+if __name__ == "__main__":
+    raise SystemExit(section3_main())

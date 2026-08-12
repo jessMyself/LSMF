@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Linux Security Management Framework</vendor>
+  <vendor_url>https://example.invalid/lsmf</vendor_url>
+
+  <action id="org.lsmf.helper.audit">
+    <description>Run an LSMF security audit</description>
+    <message>Authentication is required to run an LSMF security audit</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+  </action>
+  <action id="org.lsmf.helper.verify-module">
+    <description>Verify one installed LSMF module</description>
+    <message>Authentication is required to verify an LSMF module</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+  </action>
+  <action id="org.lsmf.helper.apply-module">
+    <description>Apply one installed LSMF module</description>
+    <message>Authentication is required to apply an LSMF module</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+  </action>
+  <action id="org.lsmf.helper.apply-modules">
+    <description>Apply an explicit list of installed LSMF modules</description>
+    <message>Authentication is required to apply LSMF modules</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+  </action>
+  <action id="org.lsmf.helper.rollback-backup">
+    <description>Roll back one LSMF-managed backup</description>
+    <message>Authentication is required to roll back an LSMF backup</message>
+    <defaults><allow_any>no</allow_any><allow_inactive>no</allow_inactive><allow_active>auth_admin</allow_active></defaults>
+  </action>
+</policyconfig>

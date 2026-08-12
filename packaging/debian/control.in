@@ -1,0 +1,11 @@
+Package: lsmf
+Version: @VERSION@
+Section: admin
+Priority: optional
+Architecture: amd64
+Maintainer: LSMF Project <noreply@example.invalid>
+Depends: python3 (>= 3.10), python3-dbus-next, policykit-1, systemd, libgl1, libegl1, libfontconfig1, libxkbcommon0, libxcb-cursor0
+Description: Qt desktop and typed privileged helper for LSMF release testing
+ Installs the unprivileged Qt desktop with a pinned PySide6 runtime and the
+ fixed D-Bus, Polkit, systemd, manifest, and Python helper runtime. Installation
+ does not enable hardening or start the helper.

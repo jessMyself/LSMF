@@ -1,0 +1,46 @@
+[Unit]
+Description=LSMF typed privileged helper
+Documentation=file:/usr/share/doc/lsmf/privileged-helper.md
+
+[Service]
+Type=dbus
+BusName=org.lsmf.Helper1
+ExecStart=/usr/libexec/lsmf-privileged-helper
+User=root
+Group=root
+UMask=0077
+Environment=PATH=/usr/sbin:/usr/bin
+WorkingDirectory=/
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+# The sysctl transaction must operate in the host network namespace. Socket
+# creation remains restricted to AF_UNIX below.
+PrivateNetwork=no
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=no
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_NET_ADMIN
+AmbientCapabilities=CAP_SYS_ADMIN CAP_NET_ADMIN
+ReadWritePaths=/run/lsmf /var/lib/lsmf/reports /var/log/lsmf /var/backups/lsmf/sysctl /etc/sysctl.d
+ReadOnlyPaths=/usr/lib/lsmf /usr/lib/python3/dist-packages/lsmf /usr/libexec/lsmf-privileged-helper /usr/libexec/lsmf-read-only-runner
+RuntimeDirectory=lsmf
+RuntimeDirectoryMode=0700
+LogsDirectory=lsmf
+LogsDirectoryMode=0700
+TimeoutStartSec=30
+TimeoutStopSec=30
+KillMode=control-group
+Restart=no

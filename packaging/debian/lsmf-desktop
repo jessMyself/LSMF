@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+if [[ ${EUID} -eq 0 ]]; then
+    echo "Do not run the LSMF desktop interface as root." >&2
+    exit 1
+fi
+
+export PYTHONNOUSERSITE=1
+export PYTHONPATH="/opt/lsmf/qt:/opt/lsmf/app:/usr/lib/python3/dist-packages"
+exec /usr/bin/python3 -m desktop.main

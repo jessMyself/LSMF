@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  source-and-security:
+    runs-on: ubuntu-24.04
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system checks
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Create test environment
+        run: |
+          python3 -m venv .ci-venv
+          .ci-venv/bin/pip install --requirement desktop/requirements.txt
+      - name: Repository hygiene and Qt-only claim
+        run: |
+          bash scripts/check_release_claims.sh
+          bash scripts/check_public_tree.sh
+      - name: Bash syntax
+        run: bash -n src/lsmf src/lib/*.sh src/modules/*.sh src/ui/*.sh scripts/*.sh packaging/privileged-helper/*.sh packaging/debian/*.sh
+      - name: ShellCheck
+        run: shellcheck src/lsmf src/lib/*.sh src/modules/*.sh src/ui/*.sh scripts/*.sh packaging/privileged-helper/*.sh packaging/debian/*.sh
+      - name: Python compilation
+        run: .ci-venv/bin/python -m compileall -q desktop lsmf tests
+      - name: Python and headless Qt tests
+        run: .ci-venv/bin/python -m unittest discover -s tests
+      - name: Bash tests
+        run: PATH="${PWD}/.ci-venv/bin:${PATH}" bash tests/run_tests.sh
+      - name: Configuration validation
+        run: make validate
+      - name: Offline package build and inspection
+        run: |
+          mkdir -p packaging/debian/.wheels
+          .ci-venv/bin/pip download --only-binary=:all: --dest packaging/debian/.wheels \
+            PySide6==6.11.1
+          packaging/debian/build-package.sh --output "${RUNNER_TEMP}/packages"
+          dpkg-deb --info "${RUNNER_TEMP}"/packages/*.deb
+          dpkg-deb --contents "${RUNNER_TEMP}"/packages/*.deb
+      - name: Offline Ubuntu dependency metadata
+        run: |
+          mkdir -p packaging/debian/.ubuntu-deps
+          cd packaging/debian/.ubuntu-deps
+          apt-get download libxcb-cursor0=0.1.4-1build1
+          cd "${GITHUB_WORKSPACE}"
+          bash scripts/verify_offline_dependencies.sh \
+            "${GITHUB_WORKSPACE}/packaging/debian/.ubuntu-deps"
+      - name: Diff hygiene
+        run: git diff --check

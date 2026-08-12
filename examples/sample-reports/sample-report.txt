@@ -1,0 +1,57 @@
+================================================================================
+Linux Security Management Framework (LSMF) - Security Report
+================================================================================
+
+Report ID: 20260628_143022_12345
+Generated: 2026-06-28 14:30:45 UTC
+Runtime: 2m 15s
+
+================================================================================
+EXECUTIVE SUMMARY
+================================================================================
+
+Security Score: 85/100
+
+System Information:
+  - OS: Ubuntu 24.04
+  - Kernel: 6.8.0-31-generic
+  - Role: server
+  - Architecture: x86_64
+
+================================================================================
+SYSTEM STATUS
+================================================================================
+
+Firewall: ufw
+MAC System: apparmor
+Package Manager: apt
+Boot Mode: UEFI
+Secure Boot: enabled
+
+================================================================================
+APPLIED HARDENING
+================================================================================
+
+  - SSH Hardening: Applied strong ciphers, disabled root login, enforced key auth
+  - Firewall (UFW): Configured with default deny, SSH rate limiting
+  - Network Hardening: Applied secure sysctl settings
+  - IPv6: Disabled
+  - Kernel Hardening: Applied ASLR, ptrace restrictions, kernel pointer protection
+
+================================================================================
+WARNINGS
+================================================================================
+
+  No warnings
+
+================================================================================
+RECOMMENDATIONS
+================================================================================
+
+  * Consider enabling automatic security updates
+  * Review and enable fail2ban for additional protection
+  * Configure file integrity monitoring with AIDE
+
+================================================================================
+End of Report
+================================================================================

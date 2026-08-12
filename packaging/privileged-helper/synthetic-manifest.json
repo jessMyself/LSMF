@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "modules": {
+    "synthetic_toggle": {
+      "relative_target": "toggle.conf",
+      "desired_content": "on\n",
+      "capabilities": ["verify", "apply"]
+    }
+  }
+}

@@ -1,0 +1,88 @@
+# Logs
+logs/
+*.log
+
+# Backups
+backups/
+backup/
+*.bak
+*.backup
+
+# Reports
+reports/
+*.report
+
+# Rollback data
+rollback/
+
+# Test artifacts
+test-results/
+*.test
+.coverage
+coverage.xml
+htmlcov/
+
+# Disposable-VM evidence and local hypervisor state
+vm-evidence/
+quickemu-state/
+*.qcow2
+*.qcow2.zsync
+*.raw
+*.vdi
+*.vmdk
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# Build artifacts
+dist/
+build/
+
+# Environment specific
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Cache
+cache/
+*.cache
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+web/.venv/
+.venv-desktop/
+venv/
+ENV/
+env/
+
+# Virtual environment created directly at the repository root
+/bin/
+/include/
+/lib/
+/lib64
+/pyvenv.cfg
+packaging/debian/.wheels/
+packaging/debian/.test-tmp/
+packaging/debian/.build-test/
+packaging/debian/.release-test/
+packaging/debian/.ubuntu-deps/
+
+# Unrelated local planning material
+/website-outline.txt
