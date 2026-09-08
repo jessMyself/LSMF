@@ -78,6 +78,7 @@ env/
 /lib/
 /lib64
 /pyvenv.cfg
+.ci-venv/
 packaging/debian/.wheels/
 packaging/debian/.test-tmp/
 packaging/debian/.build-test/

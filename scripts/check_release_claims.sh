@@ -5,6 +5,11 @@ set -Eeuo pipefail
 repository_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "${repository_root}"
 
+if ! command -v rg >/dev/null 2>&1; then
+    echo "ripgrep (rg) is required to run release claim checks; install it first." >&2
+    exit 1
+fi
+
 failures=0
 
 if rg -n -i \
