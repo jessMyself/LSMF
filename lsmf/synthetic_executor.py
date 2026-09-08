@@ -63,9 +63,9 @@ class CancellationToken:
         self._timed_out = False
 
     def cancel(self, *, timed_out: bool = False) -> None:
-        if timed_out:
-            self._timed_out = True
-        self._event.set()
+        if not self._event.is_set():
+            self._timed_out = timed_out
+            self._event.set()
 
     def checkpoint(self, *, backup_id: str | None = None) -> None:
         if self._event.is_set():

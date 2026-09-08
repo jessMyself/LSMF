@@ -129,6 +129,45 @@ class ProductionDispatcherTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ProductionStatus.CANCELLED, result.status)
         self.assertEqual("cancelled", self.events[-1].lifecycle)
 
+    async def test_accepted_cancel_is_not_reclassified_as_timed_out(self) -> None:
+        class SlowToStopExecutor:
+            def __init__(self) -> None:
+                self.entered = asyncio.Event()
+
+            async def execute(self, request, token):
+                self.entered.set()
+                while not token.cancelled:
+                    await asyncio.sleep(0.001)
+                # Simulate a worker that has already committed to a graceful
+                # stop (for example mid-way through a subprocess termination
+                # grace period) and therefore returns later than the
+                # dispatcher's own bounding timeout for this action.
+                await asyncio.sleep(0.05)
+                status = ProductionStatus.TIMED_OUT if token.timed_out else ProductionStatus.CANCELLED
+                code = "timed_out" if status is ProductionStatus.TIMED_OUT else "cancelled"
+                error = ErrorDetail(code, code.replace("_", " "))
+                if request.action is Action.AUDIT:
+                    return ProductionResult(
+                        1, request.request_id, request.action, status, NOW, NOW, 0, "done", "", False,
+                        error, finding_count=0,
+                    )
+                return ProductionResult(
+                    1, request.request_id, request.action, status, NOW, NOW, 0, "done", "", False,
+                    error, request.module_ids, request.backup_id,
+                )
+
+        executor = SlowToStopExecutor()
+        timeouts = {action: 0.01 for action in Action}
+        dispatcher = self.make_dispatcher(executor=executor, timeouts=timeouts)
+        request = self.request()
+        binding = self.binding(request)
+        submit = asyncio.create_task(dispatcher.submit(request, binding))
+        await asyncio.wait_for(executor.entered.wait(), 1)
+        response = decode_cancel_response(await dispatcher.cancel(binding))
+        self.assertTrue(response.accepted)
+        result = decode_result(await submit)
+        self.assertEqual(ProductionStatus.CANCELLED, result.status)
+
     async def test_disconnect_requests_same_safe_cancellation(self) -> None:
         self.executor.block = True
         request = self.request()
