@@ -227,10 +227,17 @@ Polkit prompt matrix (s6) in
 on the Ubuntu 24.04 test-ready clone. Mutable Qt Cancel is re-enabled
 (commit `b056b8b`) now that same-connection cancellation has live evidence;
 Cancel enablement is derived from whether an action is running and mutation
-actions return the same cancellable handle as read-only actions. The only
-remaining Section 4 item is Gate 4.6 source-publication closure, which stays
-gated on the user's exact verbatim confirmation, which the private archive
-records outside this release snapshot.
+actions return the same cancellable handle as read-only actions.
+
+**Update (2026-09-09, later):** Gate 4.6 source-publication closure is
+complete. The public GitHub repository carries the sanitized history of this
+snapshot (internal handoffs and operator host paths excluded), with CI green
+on the published commit, CodeQL passing with no open findings, secret
+scanning and push protection enabled, private vulnerability reporting
+enabled, and `main` protected (pull requests with a required passing
+`source-and-security` check and review, no force pushes or deletions). The
+repository publishes source only; no binary is published as VM-verified, and
+the recorded-package/replacement-VM-row statements above remain unchanged.
 
 ## Program completion rule
 
