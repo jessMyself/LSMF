@@ -38,7 +38,8 @@ short-lived client processes the driver spawns for each check: polkitd
 returned `authorization_denied` without ever contacting an agent, so every
 active-seat allow case failed even with correct credentials.
 
-Fix (host-side harness only, `vm-gate45/run-s6-polkit.py`):
+Fix (host-side harness only, `harness/run-s6-polkit.py` in the private
+operator's VM-evidence directory):
 each backgrounded client command now kills any prior agent and registers a
 fresh `pkttyagent --process <client-pid> --fallback` scoped to the exact pid
 of the D-Bus-calling process (a `timeout` wrapper is stripped first so the
@@ -69,8 +70,8 @@ base) were untouched; only the host-side scenario runner
 
 ## Verified inputs and isolation
 
-- VM working directory: `vm-gate45/` (external drive,
-  private host path); scenario run via `bash run-scenario.sh s6_polkit`.
+- VM working directory: private operator host path (excluded from this
+  snapshot); scenario run via `bash run-scenario.sh s6_polkit`.
 - Base disk: `disks/lsmf-gate45-testready.qcow2`, SHA-256
   `f0e63809964f928bac538d68ba385342547fcfd12c02513f039164274b828ab3`
   (unchanged; matches `evidence/option1-testready-base.sha256` before and

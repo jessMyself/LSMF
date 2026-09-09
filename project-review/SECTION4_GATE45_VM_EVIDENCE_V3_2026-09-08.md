@@ -37,7 +37,7 @@ compatibility and does not authorize publication or a workstation install.
 
 ## Verified inputs and isolation
 
-- VM working directory: `vm-gate45/` (external drive, private host path)
+- VM working directory: private operator host path (excluded from this snapshot)
 - Ubuntu ISO: `ubuntu-24.04.4-live-server-amd64.iso`
   SHA-256: `e907d92eeec9df64163a7e454cbc8d7755e8ddc7ed42f99dbc80c40f1a138433`
   (verified against the official Ubuntu `SHA256SUMS` file before use)

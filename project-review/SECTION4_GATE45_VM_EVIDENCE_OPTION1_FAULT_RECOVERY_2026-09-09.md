@@ -47,12 +47,13 @@ evidence-log line pointers given below:
 All hashes below were freshly computed with `sha256sum` on 2026-09-09 at
 write time (not carried from any earlier record).
 
-- VM working directory: `vm-gate45/` (external drive,
-  private host path). Scenario execution: `bash run-scenario.sh <name>`,
-  which forks a **fresh disposable overlay** of the golden test-ready base
-  (`disks/ovl-<name>.qcow2` plus a cloned `OVMF_VARS.fd`), boots it with
-  `-nic none` and a serial console only, runs the guest-side scenario over
-  that serial console, powers the guest off, and deletes the overlay on exit.
+- VM working directory: a private operator host path (excluded from this
+  snapshot, per the directory README). Scenario execution:
+  `bash run-scenario.sh <name>`, which forks a **fresh disposable overlay** of
+  the golden test-ready base (`disks/ovl-<name>.qcow2` plus a cloned
+  `OVMF_VARS.fd`), boots it with `-nic none` and a serial console only, runs
+  the guest-side scenario over that serial console, powers the guest off, and
+  deletes the overlay on exit.
 - Golden base used by every scenario overlay:
   `disks/lsmf-gate45-testready.qcow2`, SHA-256
   `f0e63809964f928bac538d68ba385342547fcfd12c02513f039164274b828ab3`.
@@ -127,11 +128,11 @@ authorization or execution path:
 
 ## Per-scenario results
 
-Line numbers refer to the evidence logs in
-`vm-gate45/evidence/option1/`. For s3, s4, and s5 the
-`serial-` and `live-` files are byte-identical (same SHA-256, see artifact
-table); for s1 and s2 the `serial-` file is the final clean run while the
-`live-` file additionally retains earlier harness-attempt output (see
+Line numbers refer to the evidence logs in the private operator's
+`vm-gate45/evidence/option1/` directory (host path excluded). For s3, s4, and
+s5 the `serial-` and `live-` files are byte-identical (same SHA-256, see
+artifact table); for s1 and s2 the `serial-` file is the final clean run while
+the `live-` file additionally retains earlier harness-attempt output (see
 "Known harness defects").
 
 ### s0_sanity — environment and deployment sanity
@@ -337,8 +338,8 @@ workstation install.
 
 ## Evidence artifacts (local, retained on the host)
 
-All files in `vm-gate45/evidence/option1/`, SHA-256 computed
-2026-09-09:
+All files in the private operator's `vm-gate45/evidence/option1/` directory
+(host path excluded from this snapshot), SHA-256 computed 2026-09-09:
 
 | File | SHA-256 |
 | --- | --- |

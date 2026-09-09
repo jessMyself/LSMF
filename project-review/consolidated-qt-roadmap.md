@@ -229,8 +229,8 @@ on the Ubuntu 24.04 test-ready clone. Mutable Qt Cancel is re-enabled
 Cancel enablement is derived from whether an action is running and mutation
 actions return the same cancellable handle as read-only actions. The only
 remaining Section 4 item is Gate 4.6 source-publication closure, which stays
-gated on the user's exact verbatim confirmation (see
-`the private rollout handoff`).
+gated on the user's exact verbatim confirmation, which the private archive
+records outside this release snapshot.
 
 ## Program completion rule
 
