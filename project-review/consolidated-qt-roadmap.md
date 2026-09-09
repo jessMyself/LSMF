@@ -219,6 +219,19 @@ distributions and Gate 4.6 source-publication closure remain open. Publication
 metadata later changed the archive, so current builder output needs a
 replacement Ubuntu VM row before binary release.
 
+**Update (2026-09-09):** the replacement Ubuntu VM row is complete. The Gate
+4.5 Option 1 fault-injection/crash-recovery evidence (s0–s5) is recorded in
+`SECTION4_GATE45_VM_EVIDENCE_OPTION1_FAULT_RECOVERY_2026-09-09.md` and the
+Polkit prompt matrix (s6) in
+`SECTION4_GATE45_VM_EVIDENCE_OPTION1_POLKIT_MATRIX_2026-09-09.md`, both passing
+on the Ubuntu 24.04 test-ready clone. Mutable Qt Cancel is re-enabled
+(commit `b056b8b`) now that same-connection cancellation has live evidence;
+Cancel enablement is derived from whether an action is running and mutation
+actions return the same cancellable handle as read-only actions. The only
+remaining Section 4 item is Gate 4.6 source-publication closure, which stays
+gated on the user's exact verbatim confirmation (see
+`the private rollout handoff`).
+
 ## Program completion rule
 
 Passing mocks never substitutes for VM evidence. A skipped mandatory check is
