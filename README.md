@@ -17,8 +17,9 @@ evidence-backed release claims.
   system-bus helper for approved privileged operations.
 - Qt mutation is intentionally limited to kernel hardening or the exact ordered
   kernel-plus-network transaction, with eligible backup IDs and exact rollback.
-- Mutable Qt Cancel remains disabled because its same-connection terminal-order
-  defect is unresolved.
+- Any running request, read-only or mutation, is cancellable from Qt; the
+  cancellation is delivered on the helper's own connection and exercised by the
+  recorded disconnect and concurrency VM evidence.
 - A recorded amd64 Debian-family candidate passed one bounded, offline Ubuntu
   24.04 VM row. Publication-closure metadata changed the package archive after
   that row; a newly built archive requires replacement VM verification.

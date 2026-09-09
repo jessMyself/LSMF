@@ -43,5 +43,6 @@ Security-sensitive behavior must preserve these boundaries:
 - Source checkout does not install or activate privileged components.
 - Live hardening and rollback belong only in explicitly disposable systems.
 
-Mutable interactive cancellation is not a supported capability; the Qt Cancel
-control remains disabled pending correction and live proof.
+Mutable interactive cancellation is supported for any running request and is
+delivered on the helper's own connection; cancellation handling is exercised by
+the recorded VM disconnect and concurrency evidence.

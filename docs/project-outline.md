@@ -51,8 +51,8 @@ project-configuration, and typed helper-client workflows:
 
 It can request separately authorized audit, one-module verification, the fixed
 single and ordered-pair sysctl applies, and rollback of one exact eligible
-backup. Mutable cancellation remains disabled pending the documented live
-terminal-ordering defect.
+backup. Any running request, including the fixed mutation applies, is
+cancellable from Qt; cancellation is delivered on the helper's own connection.
 
 ### Privileged-helper preparation
 

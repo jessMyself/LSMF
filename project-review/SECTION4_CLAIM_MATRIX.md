@@ -9,7 +9,7 @@
 | Qt verification | Implemented and previously VM-tested | Exactly `kernel_hardening` verification. |
 | Qt apply | Implemented and previously VM-tested | Exactly kernel apply or ordered kernel-plus-network apply. |
 | Qt rollback | Implemented and previously VM-tested | One exact eligible backup ID with durable recovery enforcement. |
-| Mutable Qt Cancel | Limited/disabled | Deferred same-connection terminal ordering is unresolved; do not claim interactive cancellation. |
+| Mutable Qt Cancel | Implemented, VM-evidenced | Any running request (read-only or mutation) is cancellable from Qt; cancellation is delivered on the helper's own connection. |
 | Configuration editor | Implemented | Only typed user/project files; installed `/etc/lsmf` remains read-only to Qt. |
 | Profiles | Preview plus explicit CLI selection | Three repository profiles; Qt does not apply a profile automatically. |
 | Terminal menu | Legacy/limited | Planned entries are labelled; it is not the primary release interface. |
@@ -20,7 +20,7 @@
 | Current package builder output | Replacement VM row required | Publication metadata and third-party notices changed the archive after Gate 4.5. Source checks and package inspection do not transfer the recorded artifact's VM result. |
 | Ubuntu 24.04 | Evidence-bearing target for recorded artifact | The recorded package passed its isolated offline Gate 4.5 row; a newly built archive requires replacement verification, and no result transfers to another distribution. |
 | Debian, Fedora, Rocky/Alma, Mint, Neon, Kali | Unverified targets | No support claim until an applicable artifact and mandatory image matrix pass. |
-| Production readiness | Not achieved | The recorded Ubuntu package row passed, but current-package verification, public-release closure, broader compatibility, and production validation remain. |
+| Production readiness | Not achieved | The recorded Ubuntu package row passed, but current-package binary verification, broader compatibility, and production validation remain; no current binary is published as VM-verified. |
 
 ## Configuration reconciliation
 
@@ -31,8 +31,6 @@ Bash engine; their presence does not grant Qt or helper capabilities.
 
 ## Known release blockers
 
-1. The same-connection mutable-cancellation defect remains unresolved and Qt
-   Cancel stays disabled.
-2. Publication metadata changed the package after the recorded Gate 4.5 row;
+1. Publication metadata changed the package after the recorded Gate 4.5 row;
    current builder output needs a replacement Ubuntu 24.04 VM row.
-3. No other distribution has package-specific evidence.
+2. No other distribution has package-specific evidence.

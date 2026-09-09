@@ -105,9 +105,10 @@ and a typed executor. Mock integration through the D-Bus boundary passes.
 with the same fixed arguments, exact five-action allowlist, clean environment,
 PID-reuse check, bounded timeout, and cancellation cleanup. Fixed external
 process adapters, the packaged Section 3 composition, and bounded Qt actions are
-implemented and have completed their Section 1–3 Ubuntu VM gates. Mutable Qt
-Cancel remains disabled for the separately documented same-connection terminal
-ordering defect.
+implemented and have completed their Section 1–3 Ubuntu VM gates. Cancellation
+of any running request is delivered on the helper's own connection, and the
+recorded Section 4 VM evidence rows exercise disconnect and concurrent
+cancellation behavior.
 
 ### Production envelope
 
@@ -400,4 +401,4 @@ module-pair apply, and exact backup rollback after their Section 1–3 gates.
 Each action shows the target and privilege impact, requires confirmation,
 reports authorization/error states, and returns bounded terminal output. Qt
 remains unprivileged, generic paths and commands are unavailable, mutable
-Cancel remains disabled, and no browser fallback exists.
+Cancel is available for any running request, and no browser fallback exists.

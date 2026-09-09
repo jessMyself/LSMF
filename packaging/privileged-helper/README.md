@@ -32,8 +32,9 @@ Ubuntu VM evidence. The exact Gate 4.5 Debian candidate was installed and
 exercised in its recorded VM row. Publication metadata later changed the
 package archive, so current builder output has not been installed or exercised
 in a VM.
-Mutable Cancel remains disabled in Qt pending correction and live proof of the
-deferred same-connection terminal-ordering defect.
+Mutable Cancel is enabled in Qt for every running request; cancellation is
+delivered on the helper's own connection and exercised by the recorded
+disconnect/concurrency VM evidence rows.
 
 `packaging/debian/build-package.sh` creates a deterministic amd64 Debian-family
 Qt/helper release-candidate package. The recorded Gate 4.5 candidate passed its

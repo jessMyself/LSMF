@@ -11,15 +11,15 @@ removed. The Qt application remains unprivileged.
 
 ## Confirmed gaps
 
-- Mutable Qt Cancel remains disabled because same-connection terminal ordering
-  is unresolved.
+- Any running request is cancellable from Qt; same-connection cancellation is
+  delivered on the helper's own connection with recorded VM evidence.
 - Only SSH, firewall, network, and kernel module scripts exist; additional
   module families remain plans.
 - Only the recorded Gate 4.5 artifact has Ubuntu 24.04 package-specific VM
   evidence; current output and other distributions require applicable artifacts
   and recorded image rows.
-- Production use, workstation installation, and public release remain outside
-  the verified boundary.
+- Production use, workstation installation, and any published binary release
+  remain outside the verified boundary.
 
 ## Security boundary
 

@@ -42,8 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   unverified capabilities
 - Remaining milestones are numbered Sections 1 through 4
 - Qt now exposes the verified Section 2 audit/verification and bounded Section
-  3 apply/exact-rollback actions; mutable Cancel remains disabled pending the
-  deferred same-connection terminal-ordering correction
+  3 apply/exact-rollback actions, and mutable Cancel is enabled for any running
+  request with cancellation delivered on the helper's own connection
 
 ### Removed
 

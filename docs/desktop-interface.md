@@ -23,9 +23,10 @@ intentionally unprivileged and must run as a normal user.
   rollback requests after explicit confirmation.
 
 It cannot edit installed `/etc/lsmf` configuration, apply arbitrary profiles or
-modules, or select paths and commands for the helper. Mutable Cancel remains
-disabled because the deferred same-connection cancellation case has not
-returned its required typed terminal result in live testing.
+modules, or select paths and commands for the helper. Any running request is
+cancellable from the desktop; the cancellation is delivered on the helper's own
+connection and exercised by the recorded disconnect and concurrency VM
+evidence.
 
 The Gate-1 helper threat model, typed protocol, and default-deny mock core are
 documented in [privileged-helper.md](privileged-helper.md). The completed helper
@@ -72,10 +73,9 @@ helper integration, audit/verification, and bounded apply/rollback sections are
 complete. The program sections are:
 
 1. **Section 1:** completed synthetic helper integration.
-2. **Section 2:** completed Qt audit and one-module verification, with its
-   same-connection cancellation limitation deferred and visible.
+2. **Section 2:** completed Qt audit and one-module verification.
 3. **Section 3:** completed bounded Qt apply, exact rollback, and durable
-   recovery proof.
+   recovery proof; mutable Cancel is enabled for any running request.
 4. **Section 4:** the recorded Ubuntu 24.04 package row passed; source-release
    closure is in progress, and the metadata-updated package needs a replacement
    VM row before binary release.
