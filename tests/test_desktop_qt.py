@@ -224,7 +224,7 @@ class LsmfMainWindowTests(unittest.TestCase):
         self.assertEqual([], service.started_actions)
         window.close()
 
-    def test_exact_kernel_apply_confirmation_and_mutation_cancel_is_disabled(self) -> None:
+    def test_exact_kernel_apply_confirmation_and_mutation_cancel_is_enabled(self) -> None:
         from PySide6.QtWidgets import QMessageBox
 
         service = _FakeService({})
@@ -237,9 +237,12 @@ class LsmfMainWindowTests(unittest.TestCase):
 
         self.assertEqual(("apply_module", "kernel_hardening"), service.started_actions[0])
         self.assertIn("19 fixed runtime sysctls", question.call_args.args[2])
-        self.assertIn("cancellation is disabled", question.call_args.args[2].lower())
-        self.assertFalse(window.cancel_action_button.isEnabled())
+        self.assertNotIn("cancellation is disabled", question.call_args.args[2].lower())
+        self.assertTrue(window.cancel_action_button.isEnabled())
         self.assertFalse(window.apply_modules_button.isEnabled())
+
+        window._cancel_read_only_action()
+        self.assertTrue(service.action_handle.cancelled)
 
         service.complete_action(SimpleNamespace(
             status="succeeded",
@@ -250,6 +253,7 @@ class LsmfMainWindowTests(unittest.TestCase):
             error=None,
         ))
         self.assertIn("Backup ID: backup-", window.action_output.toPlainText())
+        self.assertFalse(window.cancel_action_button.isEnabled())
         self.assertTrue(window.apply_kernel_button.isEnabled())
         window.close()
 

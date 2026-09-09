@@ -32,14 +32,12 @@ class DesktopActionResult:
 class DesktopActionHandle:
     """Narrow cancellation capability for one in-flight helper request."""
 
-    def __init__(self, owner: QtReadOnlyActionClient, request_id: str, *, cancellable: bool = True) -> None:
+    def __init__(self, owner: QtReadOnlyActionClient, request_id: str) -> None:
         self._owner = owner
         self._request_id = request_id
-        self._cancellable = cancellable
 
     def cancel(self) -> None:
-        if not self._cancellable:
-            raise RuntimeError("mutation cancellation is disabled until its live safety gate passes")
+        """Cancel this exact request on the helper's own bus connection."""
         self._owner.cancel(self._request_id)
 
 
@@ -81,7 +79,7 @@ class QtReadOnlyActionClient(QObject):
         else:
             raise ValueError("only audit and kernel_hardening verification are available")
         request = ProductionRequest(1, str(uuid.uuid4()), typed_action, modules)
-        return self._begin(request, callback, cancellable=True)
+        return self._begin(request, callback)
 
     def begin_mutation_action(
         self,
@@ -89,7 +87,7 @@ class QtReadOnlyActionClient(QObject):
         parameter: str | tuple[str, ...],
         callback: Callable[[object], None],
     ) -> DesktopActionHandle:
-        """Construct only the approved Section 3 requests; Cancel remains disabled."""
+        """Construct only the approved Section 3 requests; running mutations are cancellable."""
         if action == "apply_module" and parameter == "kernel_hardening":
             request = ProductionRequest(
                 1, str(uuid.uuid4()), Action.APPLY_MODULE, ("kernel_hardening",)
@@ -106,14 +104,12 @@ class QtReadOnlyActionClient(QObject):
             )
         else:
             raise ValueError("mutation action is outside the approved Section 3 manifest")
-        return self._begin(request, callback, cancellable=False)
+        return self._begin(request, callback)
 
     def _begin(
         self,
         request: ProductionRequest,
         callback: Callable[[object], None],
-        *,
-        cancellable: bool,
     ) -> DesktopActionHandle:
         if not callable(callback):
             raise TypeError("a terminal result callback is required")
@@ -131,7 +127,7 @@ class QtReadOnlyActionClient(QObject):
             daemon=True,
         )
         thread.start()
-        return DesktopActionHandle(self, request_id, cancellable=cancellable)
+        return DesktopActionHandle(self, request_id)
 
     def cancel(self, request_id: str) -> None:
         with self._lock:

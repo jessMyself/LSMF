@@ -105,8 +105,8 @@ class HelperActionBridgeTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             bridge.begin_read_only_action("verify_module", "ssh_hardening", lambda result: None)
 
-    def test_exact_mutation_mapping_and_cancel_remains_disabled(self) -> None:
-        fake = FakeClient()
+    def test_exact_mutation_mapping_and_cancel_is_delivered(self) -> None:
+        fake = FakeClient(block=True)
         bus = FakeBus()
 
         async def connector():
@@ -119,14 +119,18 @@ class HelperActionBridgeTests(unittest.TestCase):
             ("kernel_hardening", "network_hardening"),
             results.append,
         )
-        with self.assertRaises(RuntimeError):
-            handle.cancel()
+        deadline = time.monotonic() + 2
+        while not fake.requests and time.monotonic() < deadline:
+            time.sleep(0.005)
+        handle.cancel()
         self.wait_for(lambda: bool(results))
+
+        self.assertEqual([fake.requests[0].request_id], fake.cancelled)
         self.assertEqual(Action.APPLY_MODULES, fake.requests[0].action)
         self.assertEqual(
             ("kernel_hardening", "network_hardening"), fake.requests[0].module_ids
         )
-        self.assertEqual([], fake.cancelled)
+        self.assertEqual(ProductionStatus.CANCELLED, results[0].status)
 
     def test_mutation_rejects_unmanifested_modules_and_bad_backup_ids(self) -> None:
         bridge = QtReadOnlyActionClient(lambda: None)

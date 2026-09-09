@@ -80,7 +80,6 @@ class LsmfMainWindow(QMainWindow):
         self._editor_initial_values: dict[str, object] = {}
         self._editor_loading = False
         self._action_handle: object | None = None
-        self._action_cancellable = False
         self.setWindowTitle("LSMF Desktop — Unprivileged")
         self.resize(1080, 720)
 
@@ -218,7 +217,7 @@ class LsmfMainWindow(QMainWindow):
             "Section 3 retains read-only audit and kernel verification, and adds "
             "only the fixed kernel apply, ordered kernel+network apply, and exact "
             "eligible-backup rollback. Every request requires fresh confirmation "
-            "and helper authorization. Mutation cancellation remains disabled."
+            "and helper authorization. Any running request can be cancelled."
         )
         explanation.setWordWrap(True)
         layout.addWidget(explanation)
@@ -230,7 +229,6 @@ class LsmfMainWindow(QMainWindow):
         self.verify_button.clicked.connect(self._confirm_kernel_verification)
         self.cancel_action_button = QPushButton("Cancel")
         self.cancel_action_button.clicked.connect(self._cancel_read_only_action)
-        self.cancel_action_button.setEnabled(False)
         actions.addWidget(self.audit_button)
         actions.addWidget(self.verify_button)
         actions.addStretch()
@@ -606,7 +604,7 @@ class LsmfMainWindow(QMainWindow):
         self.apply_modules_button.setEnabled(mutation_available and not running)
         self.rollback_id.setEnabled(mutation_available and not running)
         self.rollback_button.setEnabled(mutation_available and not running)
-        self.cancel_action_button.setEnabled(running and self._action_cancellable)
+        self.cancel_action_button.setEnabled(running)
         if not available and not running:
             self.action_status.setText("Action status: helper unavailable")
 
@@ -649,7 +647,6 @@ class LsmfMainWindow(QMainWindow):
         self.audit_button.setEnabled(False)
         self.verify_button.setEnabled(False)
         self.cancel_action_button.setEnabled(True)
-        self._action_cancellable = True
         try:
             handle = starter(action, module_id, self._finish_read_only_action)
             if handle is None:
@@ -657,7 +654,6 @@ class LsmfMainWindow(QMainWindow):
             self._action_handle = handle
         except Exception as exc:
             self._action_handle = None
-            self._action_cancellable = False
             self.action_status.setText(f"Action status: start failed — {exc}")
             self._refresh_action_availability()
 
@@ -719,7 +715,7 @@ class LsmfMainWindow(QMainWindow):
         answer = QMessageBox.question(
             self,
             title,
-            prompt + " Mutation cancellation is disabled until the live safety gate passes.",
+            prompt,
             QMessageBox.StandardButton.Ok | QMessageBox.StandardButton.Cancel,
             QMessageBox.StandardButton.Cancel,
         )
@@ -727,7 +723,6 @@ class LsmfMainWindow(QMainWindow):
             return
         self.action_output.clear()
         self.action_status.setText(f"Action status: running — {action}")
-        self._action_cancellable = False
         self._refresh_action_availability()
         try:
             handle = starter(action, parameter, self._finish_read_only_action)
@@ -743,7 +738,6 @@ class LsmfMainWindow(QMainWindow):
     def _finish_read_only_action(self, result: object) -> None:
         """Receive one terminal result; clients must invoke this on the Qt thread."""
         self._action_handle = None
-        self._action_cancellable = False
         status = str(getattr(result, "status", "error"))
         if status.startswith("ProductionStatus."):
             status = status.rsplit(".", 1)[-1].lower()
